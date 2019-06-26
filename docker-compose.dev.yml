@@ -1,0 +1,37 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:5.7.26
+    environment:
+      MYSQL_ROOT_PASSWORD: 'pass'
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf
+
+  node:
+    image: node:12.4.0-stretch
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    command: /bin/sh -c "yarn install --dev && yarn run dev"
+
+  php:
+    build: .
+    ports:
+      - '8765:8765'
+    environment:
+      TZ: 'Asia/Tokyo'
+      APP_DEFAULT_LOCALE: ja-JP
+      DATABASE_URL: mysql://root:pass@mysql:3306/project?encoding=utf8
+    command: /bin/sh -c " bin/cake server -H '0.0.0.0'"
+    volumes:
+      - .:/usr/src/app
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+volumes:
+  mysql:
