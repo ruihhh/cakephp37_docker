@@ -4,6 +4,7 @@
 
 ```bash
 docker-compose build
+docker-compose run --rm php composer.phar install --dev
 docker-compose up
 ```
 
